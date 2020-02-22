@@ -69,6 +69,6 @@ public class ArticlePageObject extends MainPageObject{
     }
 
     public void withoutWaitTitlePresent(){
-        this.assertElementNotPresent(By.id(TITLE_BY_ID));
+        this.assertElementNotPresent(By.id(TITLE_BY_ID), "Title is not find withot waitong");
     }
 }

@@ -128,17 +128,26 @@ public class MainPageObject {
         }
     }
 
-    public void assertElementNotPresent(By by){
+    public void assertElementNotPresent(By by, String error_message){
         try {
             driver.findElement(by);
         } catch (NoSuchElementException e){
-            throw new AssertionError("Element '" + by.toString() + "' not found");
+            throw new AssertionError(error_message);
         }
     }
 
     public int getAmountOfElements(By by){
         List<WebElement> list = driver.findElements(by);
         return list.size();
+    }
+
+    public void assertTwoElementNotPresent(By by_one, By by_two, String error_message){
+        try {
+            driver.findElement(by_one);
+            driver.findElement(by_two);
+        } catch (NoSuchElementException e){
+            throw new AssertionError(error_message);
+        }
     }
 
 

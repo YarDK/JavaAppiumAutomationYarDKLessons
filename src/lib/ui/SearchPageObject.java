@@ -10,7 +10,9 @@ public class SearchPageObject extends MainPageObject {
             SEARCH_FIELD_BY_ID = "org.wikipedia:id/search_container",
             INITIALIZED_SEARCH_FIELD_BY_ID = "org.wikipedia:id/search_src_text",
             SEARCH_CLOSE_BUTTON_BY_ID = "org.wikipedia:id/search_close_btn",
+            SEARCH_RESULT_LIST_BY_ID = "org.wikipedia:id/search_results_list",
             SEARCH_RESULT_BY_SUBSTRING_TPL_BY_XPATH = "//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='{SUBSTRING}']",
+            SEARCH_RESULT_BY_TITLE_TPL_BY_XPATH = "//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='{TITLE}']",
             SEARCH_RESULT_ELEMENT_BY_XPATH = "//*[@resource-id='org.wikipedia:id/search_results_list']/*[@resource-id='org.wikipedia:id/page_list_item_container']",
             SEARCH_EMPTY_RESULT_ELEMENT_BY_XPATH = "//*[@text='No results found']";
 
@@ -19,8 +21,12 @@ public class SearchPageObject extends MainPageObject {
     }
 
     /* TEMPLATES METHODS */
-    private static String getResultSearchElement(String substring){
+    private static String getResultSearchElementBySubstring(String substring){
         return SEARCH_RESULT_BY_SUBSTRING_TPL_BY_XPATH.replace("{SUBSTRING}",substring);
+    }
+
+    private static String getResultSearchElementByTitle(String title){
+        return SEARCH_RESULT_BY_TITLE_TPL_BY_XPATH.replace("{TITLE}",title);
     }
     /* TEMPLATES METHODS */
 
@@ -46,12 +52,12 @@ public class SearchPageObject extends MainPageObject {
     }
 
     public void waitForSearchResult(String substring){
-        String search_result_by_xpath = getResultSearchElement(substring);
+        String search_result_by_xpath = getResultSearchElementBySubstring(substring);
         this.waitForElementPresent(By.xpath(search_result_by_xpath), "Result cannot find with substring '" + substring + "'");
     }
 
     public void clickByArticleWithSubstring(String substring){
-        String search_result_by_xpath = getResultSearchElement(substring);
+        String search_result_by_xpath = getResultSearchElementBySubstring(substring);
         this.waitForElementAndClick(By.xpath(search_result_by_xpath), "Result cannot find and click with substring '" + substring + "'",5);
     }
 
@@ -68,12 +74,22 @@ public class SearchPageObject extends MainPageObject {
 
     public void assertThereIsNoResultOfSearch()
     {
-        this.assertElementNotPresent(By.xpath(SEARCH_EMPTY_RESULT_ELEMENT_BY_XPATH));
+        this.assertElementNotPresent(By.xpath(SEARCH_EMPTY_RESULT_ELEMENT_BY_XPATH), "Found some result");
     }
 
     public String getPlaceholderSearchField(){
         WebElement element_search_field = this.waitForElementPresent(By.id(INITIALIZED_SEARCH_FIELD_BY_ID),"Element 'SEARCH_FIELD_BY_ID'can not find",5);
         return element_search_field.getAttribute("text");
+    }
+
+    public void waitForElementByTitleAndDescription(String title, String description){
+        String search_result_description_by_xpath = getResultSearchElementBySubstring(description);
+        String search_result_title_by_xpath = getResultSearchElementByTitle(title);
+        this.waitForElementPresent(By.id(SEARCH_RESULT_LIST_BY_ID),"Element 'SEARCH_RESULT_LIST_BY_ID' not found");
+        this.assertTwoElementNotPresent(
+                By.xpath(search_result_description_by_xpath),
+                By.xpath(search_result_title_by_xpath),
+                "Cannot find result with title '"+title+"' and description '"+description+"'.");
     }
 
 }
