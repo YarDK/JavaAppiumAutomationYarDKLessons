@@ -30,7 +30,7 @@ public class CoreTestCase extends TestCase {
 
 
         driver = new AndroidDriver(new URL(AppiumURL), capabilities);
-        driver.rotate(ScreenOrientation.PORTRAIT);
+        this.rotateScreenPortrait();
 
     }
 
@@ -39,5 +39,17 @@ public class CoreTestCase extends TestCase {
     {
         super.tearDown();
         driver.quit();
+    }
+
+    protected void rotateScreenPortrait(){
+        driver.rotate(ScreenOrientation.PORTRAIT);
+    }
+
+    protected void rotateScreenLandscape(){
+        driver.rotate(ScreenOrientation.LANDSCAPE);
+    }
+
+    protected void backgroundApp(int seconds){
+        driver.runAppInBackground(seconds);
     }
 }

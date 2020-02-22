@@ -10,6 +10,9 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainPageObject {
 
     protected AppiumDriver driver;
@@ -19,34 +22,34 @@ public class MainPageObject {
     }
 
     // Метод для ожидания появления элемента
-    public WebElement waitForElementPresents(By by, String error_massage, long timeoutInSeconds) {
+    public WebElement waitForElementPresent(By by, String error_massage, long timeoutInSeconds) {
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
         wait.withMessage(error_massage + "\n");
         return wait.until(ExpectedConditions.presenceOfElementLocated(by));
     }
 
     // Перегруженный метод для ожидания появления элемента, таймаут задан по умолчанию 5 секунд
-    public WebElement waitForElementPresents(By by, String error_massage) {
-        return waitForElementPresents(by, error_massage, 5);
+    public WebElement waitForElementPresent(By by, String error_massage) {
+        return waitForElementPresent(by, error_massage, 5);
     }
 
     // Метод для совершения клика по элементу
     public WebElement waitForElementAndClick(By by, String error_massage, long timeoutInSeconds) {
-        WebElement element = waitForElementPresents(by, error_massage, timeoutInSeconds);
+        WebElement element = waitForElementPresent(by, error_massage, timeoutInSeconds);
         element.click();
         return element;
     }
 
     // Метод для совершения клика по элементу
     public WebElement waitForElementAndSendKeys(By by, String value, String error_massage, long timeoutInSeconds) {
-        WebElement element = waitForElementPresents(by, error_massage, timeoutInSeconds);
+        WebElement element = waitForElementPresent(by, error_massage, timeoutInSeconds);
         element.sendKeys(value);
         return element;
     }
 
     // Метод для ввода значения в выбранный элемент
     public WebElement  waitForElementAndSetValue(By by, String value, String error_massage, long timeoutInSeconds) {
-        waitForElementPresents(by,error_massage,timeoutInSeconds);
+        waitForElementPresent(by,error_massage,timeoutInSeconds);
         MobileElement element = (MobileElement) driver.findElement(by);
         element.setValue(value);
         return element;
@@ -61,7 +64,7 @@ public class MainPageObject {
 
     // Метод для удаления текста
     public WebElement waitForElementAndClear(By by, String error_massage, long timeoutInSeconds) {
-        WebElement element = waitForElementPresents(by, error_massage, timeoutInSeconds);
+        WebElement element = waitForElementPresent(by, error_massage, timeoutInSeconds);
         element.clear();
         return element;
     }
@@ -92,7 +95,7 @@ public class MainPageObject {
         int already_swipe = 0;
         while(driver.findElements(by).size() == 0){
             if (already_swipe > max_swipes){
-                waitForElementPresents(by, error_message + " Swipe limit exceeded", 0);
+                waitForElementPresent(by, error_message + " Swipe limit exceeded", 0);
                 return;
             }
             swipeUpQuick();
@@ -101,7 +104,7 @@ public class MainPageObject {
     }
 
     public void swipeElementToLeft(By by, String error_message){
-        WebElement element = waitForElementPresents(by, error_message, 10);
+        WebElement element = waitForElementPresent(by, error_message, 10);
         int left_x = element.getLocation().getX(); // Левая сторона найденного элемента. Берем нулевое значение по оси Х
         int right_x = left_x + element.getSize().getWidth(); // Правая сторона элемента
         int upper_y = element.getLocation().getY();
@@ -117,7 +120,7 @@ public class MainPageObject {
                 .perform();
     }
 
-    public void waitingForElement(int timeForWaiting){
+    public void waitingForElement(long timeForWaiting){
         try{
             Thread.sleep(timeForWaiting);
         }catch (Exception e){
@@ -125,11 +128,18 @@ public class MainPageObject {
         }
     }
 
-    public void assertElementPresent(By by){
+    public void assertElementNotPresent(By by){
         try {
             driver.findElement(by);
         } catch (NoSuchElementException e){
             throw new AssertionError("Element '" + by.toString() + "' not found");
         }
     }
+
+    public int getAmountOfElements(By by){
+        List<WebElement> list = driver.findElements(by);
+        return list.size();
+    }
+
+
 }
