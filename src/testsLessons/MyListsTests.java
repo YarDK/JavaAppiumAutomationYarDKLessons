@@ -1,4 +1,4 @@
-package tests;
+package testsLessons;
 
 import lib.CoreTestCase;
 import lib.ui.ArticlePageObject;
@@ -21,7 +21,7 @@ public class MyListsTests extends CoreTestCase {
         articlePageObject.waitForTitleElement();
         String article_title = articlePageObject.getArticleTitle();
         String name_of_folder = "Learning Programming";
-        articlePageObject.addArticleToMyList(name_of_folder);
+        articlePageObject.addFirstArticleToMyList(name_of_folder);
         articlePageObject.closeArticle();
 
         NavigationUI navigationUI = new NavigationUI(driver);

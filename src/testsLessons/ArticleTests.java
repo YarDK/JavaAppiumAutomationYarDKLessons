@@ -1,4 +1,4 @@
-package tests;
+package testsLessons;
 
 import lib.CoreTestCase;
 import lib.ui.ArticlePageObject;

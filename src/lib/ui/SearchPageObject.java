@@ -2,11 +2,13 @@ package lib.ui;
 
 import io.appium.java_client.AppiumDriver;
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 
 public class SearchPageObject extends MainPageObject {
 
     private static final String
             SEARCH_FIELD_BY_ID = "org.wikipedia:id/search_container",
+            INITIALIZED_SEARCH_FIELD_BY_ID = "org.wikipedia:id/search_src_text",
             SEARCH_CLOSE_BUTTON_BY_ID = "org.wikipedia:id/search_close_btn",
             SEARCH_RESULT_BY_SUBSTRING_TPL_BY_XPATH = "//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='{SUBSTRING}']",
             SEARCH_RESULT_ELEMENT_BY_XPATH = "//*[@resource-id='org.wikipedia:id/search_results_list']/*[@resource-id='org.wikipedia:id/page_list_item_container']",
@@ -67,6 +69,11 @@ public class SearchPageObject extends MainPageObject {
     public void assertThereIsNoResultOfSearch()
     {
         this.assertElementNotPresent(By.xpath(SEARCH_EMPTY_RESULT_ELEMENT_BY_XPATH));
+    }
+
+    public String getPlaceholderSearchField(){
+        WebElement element_search_field = this.waitForElementPresent(By.id(INITIALIZED_SEARCH_FIELD_BY_ID),"Element 'SEARCH_FIELD_BY_ID'can not find",5);
+        return element_search_field.getAttribute("text");
     }
 
 }

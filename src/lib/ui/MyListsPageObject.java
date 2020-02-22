@@ -29,6 +29,11 @@ public class MyListsPageObject extends MainPageObject {
         this.waitForElementAndClick(By.xpath(folder_name),"Cannot find folder by name '" + name_of_folder + "'.",5);
     }
 
+    public void waitForListPresent(String name_of_folder){
+        String folder_name = getFolderByName(name_of_folder);
+        this.waitForElementPresent(By.xpath(folder_name),"Cannot find folder with name '" +name_of_folder+ "'.",10);
+    }
+
     public void waitForArticleToAppearByTitle(String article_title){
         String title = getTitleOfSaveArticle(article_title);
         this.waitForElementPresent(By.xpath(title),"Save article with title " + article_title + "' can not find.",15);
@@ -44,6 +49,11 @@ public class MyListsPageObject extends MainPageObject {
         String title = getTitleOfSaveArticle(article_title);
         this.swipeElementToLeft(By.xpath(title),"Article with title '" + article_title + "' can not find.");
         this.waitForArticleToDisappearByTitle(article_title);
+    }
+
+    public void clickByArticleWithTitle(String title){
+        String saving_title = getTitleOfSaveArticle(title);
+        this.waitForElementAndClick(By.xpath(saving_title), "Title with name '" + title + "' cannot find and clicked",5);
     }
 
 
