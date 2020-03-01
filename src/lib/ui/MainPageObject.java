@@ -3,6 +3,8 @@ package lib.ui;
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.MobileElement;
 import io.appium.java_client.TouchAction;
+import io.appium.java_client.touch.WaitOptions;
+import io.appium.java_client.touch.offset.PointOption;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.NoSuchElementException;
@@ -10,8 +12,9 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.util.ArrayList;
+import java.time.Duration;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class MainPageObject {
 
@@ -22,49 +25,52 @@ public class MainPageObject {
     }
 
     // Метод для ожидания появления элемента
-    public WebElement waitForElementPresent(By by, String error_massage, long timeoutInSeconds) {
+    public WebElement waitForElementPresent(String locator, String error_massage, long timeoutInSeconds) {
+        By by = this.getLocatorByString(locator);
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
         wait.withMessage(error_massage + "\n");
         return wait.until(ExpectedConditions.presenceOfElementLocated(by));
     }
 
     // Перегруженный метод для ожидания появления элемента, таймаут задан по умолчанию 5 секунд
-    public WebElement waitForElementPresent(By by, String error_massage) {
-        return waitForElementPresent(by, error_massage, 5);
+    public WebElement waitForElementPresent(String locator, String error_massage) {
+        return waitForElementPresent(locator, error_massage, 5);
     }
 
     // Метод для совершения клика по элементу
-    public WebElement waitForElementAndClick(By by, String error_massage, long timeoutInSeconds) {
-        WebElement element = waitForElementPresent(by, error_massage, timeoutInSeconds);
+    public WebElement waitForElementAndClick(String locator, String error_massage, long timeoutInSeconds) {
+        WebElement element = waitForElementPresent(locator, error_massage, timeoutInSeconds);
         element.click();
         return element;
     }
 
     // Метод для совершения клика по элементу
-    public WebElement waitForElementAndSendKeys(By by, String value, String error_massage, long timeoutInSeconds) {
-        WebElement element = waitForElementPresent(by, error_massage, timeoutInSeconds);
+    public WebElement waitForElementAndSendKeys(String locator, String value, String error_massage, long timeoutInSeconds) {
+        WebElement element = waitForElementPresent(locator, error_massage, timeoutInSeconds);
         element.sendKeys(value);
         return element;
     }
 
     // Метод для ввода значения в выбранный элемент
-    public WebElement  waitForElementAndSetValue(By by, String value, String error_massage, long timeoutInSeconds) {
-        waitForElementPresent(by,error_massage,timeoutInSeconds);
+    public WebElement  waitForElementAndSetValue(String locator, String value, String error_massage, long timeoutInSeconds) {
+        By by = this.getLocatorByString(locator);
+        waitForElementPresent(locator,error_massage,timeoutInSeconds);
         MobileElement element = (MobileElement) driver.findElement(by);
         element.setValue(value);
         return element;
     }
 
     // Метод для проверки отсутствия элемента
-    public boolean waitForElementNotPresent(By by, String error_massage, long timeInSeconds) {
+    public boolean waitForElementNotPresent(String locator, String error_massage, long timeInSeconds) {
+        By by = this.getLocatorByString(locator);
         WebDriverWait wait = new WebDriverWait(driver, timeInSeconds);
         wait.withMessage(error_massage + "\n");
         return wait.until(ExpectedConditions.invisibilityOfElementLocated(by));
     }
 
     // Метод для удаления текста
-    public WebElement waitForElementAndClear(By by, String error_massage, long timeoutInSeconds) {
-        WebElement element = waitForElementPresent(by, error_massage, timeoutInSeconds);
+    public WebElement waitForElementAndClear(String locator, String error_massage, long timeoutInSeconds) {
+        WebElement element = waitForElementPresent(locator, error_massage, timeoutInSeconds);
         element.clear();
         return element;
     }
@@ -78,9 +84,9 @@ public class MainPageObject {
         int end_y = (int) (size.height * 0.2);
         // Нажать в заданной координате, держать заданное время, перетащить в заданную координату, закончить действие, передать на выполнение
         action
-                .press(x, start_y)
-                .waitAction(timeOfSwipe)
-                .moveTo(x,end_y)
+                .press(PointOption.point(x, start_y))
+                .waitAction(WaitOptions.waitOptions(Duration.ofMillis(timeOfSwipe)))
+                .moveTo(PointOption.point(x, end_y))
                 .release()
                 .perform();
     }
@@ -91,11 +97,12 @@ public class MainPageObject {
     }
 
     // Метод для скорла, пока не появится элемент на странице
-    public void swipeUpToFindElement(By by, String error_message, int max_swipes){
+    public void swipeUpToFindElement(String locator, String error_message, int max_swipes){
+        By by = this.getLocatorByString(locator);
         int already_swipe = 0;
         while(driver.findElements(by).size() == 0){
             if (already_swipe > max_swipes){
-                waitForElementPresent(by, error_message + " Swipe limit exceeded", 0);
+                waitForElementPresent(locator, error_message + " Swipe limit exceeded", 0);
                 return;
             }
             swipeUpQuick();
@@ -103,8 +110,8 @@ public class MainPageObject {
         }
     }
 
-    public void swipeElementToLeft(By by, String error_message){
-        WebElement element = waitForElementPresent(by, error_message, 10);
+    public void swipeElementToLeft(String locator, String error_message){
+        WebElement element = waitForElementPresent(locator, error_message, 10);
         int left_x = element.getLocation().getX(); // Левая сторона найденного элемента. Берем нулевое значение по оси Х
         int right_x = left_x + element.getSize().getWidth(); // Правая сторона элемента
         int upper_y = element.getLocation().getY();
@@ -113,9 +120,9 @@ public class MainPageObject {
 
         TouchAction action = new TouchAction(driver);
         action
-                .press(right_x, middle_y)
-                .waitAction(300)
-                .moveTo(left_x, middle_y)
+                .press(PointOption.point(right_x, middle_y))
+                .waitAction(WaitOptions.waitOptions(Duration.ofMillis(300)))
+                .moveTo(PointOption.point(left_x, middle_y))
                 .release()
                 .perform();
     }
@@ -128,7 +135,8 @@ public class MainPageObject {
         }
     }
 
-    public void assertElementNotPresent(By by, String error_message){
+    public void assertElementNotPresent(String locator, String error_message){
+        By by = this.getLocatorByString(locator);
         try {
             driver.findElement(by);
         } catch (NoSuchElementException e){
@@ -136,17 +144,36 @@ public class MainPageObject {
         }
     }
 
-    public int getAmountOfElements(By by){
-        List<WebElement> list = driver.findElements(by);
+    public int getAmountOfElements(String locator){
+        By by = this.getLocatorByString(locator);
+        List list = driver.findElements(by);
         return list.size();
     }
 
-    public void assertTwoElementNotPresent(By by_one, By by_two, String error_message){
+    public void assertTwoElementNotPresent(String locator_first_element, String locator_second_element, String error_message){
+
+        By by_one = this.getLocatorByString(locator_first_element);
+        By by_two = this.getLocatorByString(locator_second_element);
         try {
             driver.findElement(by_one);
             driver.findElement(by_two);
         } catch (NoSuchElementException e){
             throw new AssertionError(error_message);
+        }
+    }
+
+    private By getLocatorByString(String locator_with_type){
+        // Данная строка записывает делит по символу двоеточие
+        String[] exploded_locator = locator_with_type.split(Pattern.quote(":"),2);
+        String by_type = exploded_locator[0];
+        String locator = exploded_locator[1];
+
+        if (by_type.equals("xpath")){
+            return By.xpath(locator);
+        } else if (by_type.equals("id")){
+            return By.id(locator);
+        } else {
+            throw new IllegalArgumentException("Cannot get typ of locator. Locator: " + locator_with_type);
         }
     }
 

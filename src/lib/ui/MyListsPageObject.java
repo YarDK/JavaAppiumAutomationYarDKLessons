@@ -7,8 +7,8 @@ import org.openqa.selenium.By;
 public class MyListsPageObject extends MainPageObject {
 
     private static final String
-            FOLDER_BY_NAME_TPL_BY_XPATH = "//*[@text='{NAME_FOLDER}']",
-            ARTICLE_BY_TITLE_TPL_BY_XPATH = "//*[@text='{TITLE}']";
+            FOLDER_BY_NAME_TPL_BY_XPATH = "xpath://*[@text='{NAME_FOLDER}']",
+            ARTICLE_BY_TITLE_TPL_BY_XPATH = "xpath://*[@text='{TITLE}']";
 
     /* TEMPLATES METHODS */
     private static String getFolderByName(String name_of_folder){
@@ -26,34 +26,34 @@ public class MyListsPageObject extends MainPageObject {
 
     public void openFolderByName(String name_of_folder){
         String folder_name = getFolderByName(name_of_folder);
-        this.waitForElementAndClick(By.xpath(folder_name),"Cannot find folder by name '" + name_of_folder + "'.",5);
+        this.waitForElementAndClick(folder_name,"Cannot find folder by name '" + name_of_folder + "'.",5);
     }
 
     public void waitForListPresent(String name_of_folder){
         String folder_name = getFolderByName(name_of_folder);
-        this.waitForElementPresent(By.xpath(folder_name),"Cannot find folder with name '" +name_of_folder+ "'.",10);
+        this.waitForElementPresent(folder_name,"Cannot find folder with name '" +name_of_folder+ "'.",10);
     }
 
     public void waitForArticleToAppearByTitle(String article_title){
         String title = getTitleOfSaveArticle(article_title);
-        this.waitForElementPresent(By.xpath(title),"Save article with title " + article_title + "' can not find.",15);
+        this.waitForElementPresent(title,"Save article with title " + article_title + "' can not find.",15);
     }
 
     public void waitForArticleToDisappearByTitle(String article_title){
         String title = getTitleOfSaveArticle(article_title);
-        this.waitForElementNotPresent(By.xpath(title),"Save article still present with title " + article_title + "'.",15);
+        this.waitForElementNotPresent(title,"Save article still present with title " + article_title + "'.",15);
     }
 
     public void swipeByArticleToDelete(String article_title){
         this.waitForArticleToAppearByTitle(article_title);
         String title = getTitleOfSaveArticle(article_title);
-        this.swipeElementToLeft(By.xpath(title),"Article with title '" + article_title + "' can not find.");
+        this.swipeElementToLeft(title,"Article with title '" + article_title + "' can not find.");
         this.waitForArticleToDisappearByTitle(article_title);
     }
 
     public void clickByArticleWithTitle(String title){
         String saving_title = getTitleOfSaveArticle(title);
-        this.waitForElementAndClick(By.xpath(saving_title), "Title with name '" + title + "' cannot find and clicked",5);
+        this.waitForElementAndClick(saving_title, "Title with name '" + title + "' cannot find and clicked",5);
     }
 
 
