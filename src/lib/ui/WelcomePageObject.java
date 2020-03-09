@@ -1,8 +1,8 @@
 package lib.ui;
 
 import io.appium.java_client.AppiumDriver;
-import org.openqa.selenium.By;
 
+// Класс только для последовательного пропуска всех окон Велком онка для iOS
 public class WelcomePageObject extends MainPageObject {
 
     private static final String
@@ -11,7 +11,8 @@ public class WelcomePageObject extends MainPageObject {
     STEP_ADD_OR_EDIT_PREFERRED_LANGUAGES_LINK_BY_ID = "id:Add or edit preferred languages",
     STEP_LEARN_MORE_ABOUT_DATA_COLLECTED_LINK_BY_ID = "id:Learn more about data collected",
     NEXT_BUTTON_BY_ID = "id:Next",
-    GET_STARTED_BUTTON_BY_ID = "id:Get started";
+    GET_STARTED_BUTTON_BY_ID = "id:Get started",
+    SKIP_BUTTON = "id:Skip";
 
     public WelcomePageObject(AppiumDriver driver){
         super(driver);
@@ -39,6 +40,10 @@ public class WelcomePageObject extends MainPageObject {
 
     public void clickGetStartedButton(){
         this.waitForElementAndClick(GET_STARTED_BUTTON_BY_ID,"Cannot find and click 'Get started' button.", 10);
+    }
+
+    public void clickSkip(){
+        this.waitForElementAndClick(SKIP_BUTTON,"Skip button cannot find and click", 10);
     }
 
 }

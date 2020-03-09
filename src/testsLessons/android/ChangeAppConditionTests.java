@@ -1,8 +1,10 @@
-package testsLessons;
+package testsLessons.android;
 
 import lib.CoreTestCase;
 import lib.ui.ArticlePageObject;
 import lib.ui.SearchPageObject;
+import lib.ui.factories.ArticlePageObjectFactroy;
+import lib.ui.factories.SearchPageObjectFactory;
 import org.junit.Test;
 
 public class ChangeAppConditionTests extends CoreTestCase {
@@ -10,15 +12,17 @@ public class ChangeAppConditionTests extends CoreTestCase {
     @Test
     public void testChangeScreenOrientationOnSearchResults()
     {
-        SearchPageObject searchPageObject = new SearchPageObject(driver);
+        SearchPageObject searchPageObject = SearchPageObjectFactory.get(driver);
         searchPageObject.initSearchInput();
+        String substring_article = "Object-oriented programming language";
+        String title_article = "Java (programming language)";
         searchPageObject.typeSearchLine("Java");
-        searchPageObject.clickByArticleWithSubstring("Object-oriented programming language");
+        searchPageObject.clickByArticleWithSubstring(substring_article);
 
-        ArticlePageObject articlePageObject = new ArticlePageObject(driver);
-        String title_before_rotation = articlePageObject.getArticleTitle();
+        ArticlePageObject articlePageObject = ArticlePageObjectFactroy.get(driver);
+        String title_before_rotation = articlePageObject.getArticleTitle(title_article);
         this.rotateScreenLandscape();
-        String title_after_rotation = articlePageObject.getArticleTitle();
+        String title_after_rotation = articlePageObject.getArticleTitle(title_article);
 
         assertEquals(
                 "Article title have been changed after screen rotation",
@@ -28,7 +32,7 @@ public class ChangeAppConditionTests extends CoreTestCase {
 
         this.rotateScreenPortrait();
 
-        String title_after_second_rotation = articlePageObject.getArticleTitle();
+        String title_after_second_rotation = articlePageObject.getArticleTitle(title_article);
 
         assertEquals(
                 "Article title have been changed after screen rotation",
@@ -40,7 +44,7 @@ public class ChangeAppConditionTests extends CoreTestCase {
     @Test
     public void testCheckSearchArticleInBackground()
     {
-        SearchPageObject searchPageObject = new SearchPageObject(driver);
+        SearchPageObject searchPageObject = SearchPageObjectFactory.get(driver);
         searchPageObject.initSearchInput();
         searchPageObject.typeSearchLine("Java");
         searchPageObject.waitForSearchResult("Object-oriented programming language");

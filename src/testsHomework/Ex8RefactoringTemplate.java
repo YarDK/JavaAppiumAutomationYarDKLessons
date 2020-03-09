@@ -2,6 +2,7 @@ package testsHomework;
 
 import lib.CoreTestCase;
 import lib.ui.SearchPageObject;
+import lib.ui.factories.SearchPageObjectFactory;
 import org.junit.Test;
 
 public class Ex8RefactoringTemplate extends CoreTestCase {
@@ -9,7 +10,7 @@ public class Ex8RefactoringTemplate extends CoreTestCase {
     @Test
     public void testRefactoringTemplate()
     {
-        SearchPageObject searchPageObject = new SearchPageObject(driver);
+        SearchPageObject searchPageObject = SearchPageObjectFactory.get(driver);
 
         searchPageObject.initSearchInput();
         searchPageObject.typeSearchLine("Java");

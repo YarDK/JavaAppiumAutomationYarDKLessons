@@ -1,21 +1,22 @@
 package lib.ui;
 
 import io.appium.java_client.AppiumDriver;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+import lib.Platform;
 
-public class ArticlePageObject extends MainPageObject{
+abstract public class ArticlePageObject extends MainPageObject{
 
-    private static final String
-            TITLE_BY_ID = "id:org.wikipedia:id/view_page_title_text",
-            FOOTER_ELEMENT_BY_XPATH = "xpath://*[@text='View page in browser']",
-            OPTIONS_BUTTON_BY_XPATH = "xpath://android.widget.ImageView[@content-desc='More options']",
-            OPTIONS_ADD_TO_MY_LIST_BUTTON_BY_XPATH = "xpath://*[@text='Add to reading list']",
-            ADD_TO_MY_LIST_OVERLAY_BY_ID = "id:org.wikipedia:id/onboarding_button",
-            MY_NAME_LIST_TPL_BY_XPATH = "xpath://*[@resource-id='org.wikipedia:id/item_container']//*[@text='{FOLDER_NAME}']",
-            MY_NAME_LIST_INPUT_BY_ID = "id:org.wikipedia:id/text_input",
-            MY_LIST_OK_BUTTON_BY_XPATH = "xpath://*[@text='OK']",
-            CLOSE_ARTICLE_BUTTON_BY_XPATH = "xpath://android.widget.ImageButton[@content-desc='Navigate up']";
+    protected static String
+            TITLE_TPL,
+            FOOTER_ELEMENT,
+            OPTIONS_BUTTON_BY_XPATH,
+            OPTIONS_ADD_TO_MY_LIST_BUTTON,
+            ADD_TO_MY_LIST_OVERLAY_BY_ID,
+            MY_NAME_LIST_TPL_BY_XPATH,
+            MY_NAME_LIST_INPUT_BY_ID,
+            MY_LIST_OK_BUTTON_BY_XPATH,
+            CLOSE_POPOVER_SYNC_SAVED_ARTICLE,
+            CLOSE_ARTICLE_BUTTON;
 
 
 
@@ -23,52 +24,132 @@ public class ArticlePageObject extends MainPageObject{
         super(driver);
     }
 
+
     /* TEMPLATES METHODS */
     private static String getMyNameList(String name_of_folder){
         return MY_NAME_LIST_TPL_BY_XPATH.replace("{FOLDER_NAME}",name_of_folder);
     }
+
+    private static String getTitleElement(String title){
+        return TITLE_TPL.replace("{TITLE}", title);
+    }
     /* TEMPLATES METHODS */
 
-    public WebElement waitForTitleElement()
+    // Закрыть всплывающее окно с предложения синхронизировать статьи
+    public void clickByCloseButtonPopoverSyncSavedArticle(){
+        this.waitForElementAndClick(
+                CLOSE_POPOVER_SYNC_SAVED_ARTICLE,
+                "Cannot find and click element 'CLOSE_POPOVER_SYNC_SAVED_ARTICLE'",
+                10);
+    }
+
+    // Ожидание появления Названия статьи
+    public WebElement waitForTitleElement(String title)
     {
-        return this.waitForElementPresent(TITLE_BY_ID,"Cannot find article title on page",15);
+        String title_name = getTitleElement(title);
+        return this.waitForElementPresent(
+                title_name,
+                "Cannot find article title on page",
+                20);
     }
 
-    public void waitForLoadingElementOrPage(int sleep_time_in_seconds){
-        this.waitingForElement(sleep_time_in_seconds * 1000);
+    // Взять название статьи из элемента и вернуть его как строку
+    public String getArticleTitle(String title){
+        WebElement title_element = waitForTitleElement(title);
+        if(Platform.getInstance().isAndroid()) {
+            return title_element.getAttribute("text");
+        } else {
+            return title_element.getAttribute("name");
+        }
     }
 
-    public String getArticleTitle(){
-        WebElement title_element = waitForTitleElement();
-        return title_element.getAttribute("text");
+    // Свайп от начала статья до конца, пока не появится заданный элемент
+    public void swipeToFooter(int max_swipes){
+        if(Platform.getInstance().isAndroid()) {
+            this.swipeUpToFindElement(
+                    FOOTER_ELEMENT,
+                    "Cannot find the end article",
+                    max_swipes);
+        } else {
+            this.swipeUpToFindElementAppear(
+                    FOOTER_ELEMENT,
+                    "Cannot find the end article",
+                    max_swipes);
+        }
     }
 
-    public void swipeToFooter(){
-        this.swipeUpToFindElement(FOOTER_ELEMENT_BY_XPATH,"Cannot find the end article",20);
-    }
-
+    // Добавление первой статья для Андроида (Скип всплывающего оверлея)
     public void addFirstArticleToMyList(String name_of_folder){
-        this.waitForElementAndClick(OPTIONS_BUTTON_BY_XPATH,"'OPTIONS_BUTTON_BY_XPATH' cannot find and click",5);
-        this.waitForElementAndClick(OPTIONS_ADD_TO_MY_LIST_BUTTON_BY_XPATH,"'OPTIONS_ADD_TO_MY_LIST_BUTTON_BY_XPATH' cannot find and click",5);
-        this.waitForElementAndClick(ADD_TO_MY_LIST_OVERLAY_BY_ID,"'ADD_TO_MY_LIST_OVERLAY_BY_ID' cannot find and click (button 'Got it')",5);
-        this.waitForElementAndClear(MY_NAME_LIST_INPUT_BY_ID,"'MY_NAME_LIST_INPUT_BY_ID' cannot find and clear",5);
-        this.waitForElementAndSetValue(MY_NAME_LIST_INPUT_BY_ID,name_of_folder,"Cannot set value by 'MY_NAME_LIST_INPUT_BY_ID'",5);
-        this.waitForElementAndClick(MY_LIST_OK_BUTTON_BY_XPATH,"'MY_LIST_OK_BUTTON_BY_XPATH' cannot find and click",5);
+
+        this.waitForElementAndClick(
+                OPTIONS_BUTTON_BY_XPATH,
+                "'OPTIONS_BUTTON_BY_XPATH' cannot find and click",
+                5);
+
+        this.waitForElementAndClick(
+                OPTIONS_ADD_TO_MY_LIST_BUTTON,
+                "'OPTIONS_ADD_TO_MY_LIST_BUTTON' cannot find and click",
+                5);
+
+        this.waitForElementAndClick(
+                ADD_TO_MY_LIST_OVERLAY_BY_ID,
+                "'ADD_TO_MY_LIST_OVERLAY_BY_ID' cannot find and click (button 'Got it')",
+                5);
+
+        this.waitForElementAndClear(
+                MY_NAME_LIST_INPUT_BY_ID,
+                "'MY_NAME_LIST_INPUT_BY_ID' cannot find and clear",
+                5);
+
+        this.waitForElementAndSetValue(
+                MY_NAME_LIST_INPUT_BY_ID,
+                name_of_folder,
+                "Cannot set value by 'MY_NAME_LIST_INPUT_BY_ID'",
+                5);
+
+        this.waitForElementAndClick(
+                MY_LIST_OK_BUTTON_BY_XPATH,
+                "'MY_LIST_OK_BUTTON_BY_XPATH' cannot find and click",
+                5);
     }
 
+    // Добавление второй и последующих статей
     public void addSecondArticleToMyList(String name_of_folder){
-        this.waitForElementAndClick(OPTIONS_BUTTON_BY_XPATH,"'OPTIONS_BUTTON_BY_XPATH' cannot find and click",5);
-        this.waitForElementAndClick(OPTIONS_ADD_TO_MY_LIST_BUTTON_BY_XPATH,"'OPTIONS_ADD_TO_MY_LIST_BUTTON_BY_XPATH' cannot find and click",5);
+        this.waitForElementAndClick(
+                OPTIONS_BUTTON_BY_XPATH,
+                "'OPTIONS_BUTTON_BY_XPATH' cannot find and click",
+                5);
+
+        this.waitForElementAndClick(
+                OPTIONS_ADD_TO_MY_LIST_BUTTON,
+                "'OPTIONS_ADD_TO_MY_LIST_BUTTON' cannot find and click",
+                5);
+
         String my_name_list = getMyNameList(name_of_folder);
-        this.waitForElementAndClick(my_name_list,"Cannot find list with name '" + name_of_folder + "'.",5);
+        this.waitForElementAndClick(my_name_list,
+                "Cannot find list with name '" + name_of_folder + "'.",
+                5);
     }
 
+    // Добавление статьи для iOS
+    public void addArticleToMyListForIOS(){
+        this.waitForElementAndClick(OPTIONS_ADD_TO_MY_LIST_BUTTON,
+                "Cannot find option button 'Add to nu list'",
+                10);
+    }
+
+    // Закрытие статьи
     public void closeArticle(){
         this.waitForElementAndClick(
-                CLOSE_ARTICLE_BUTTON_BY_XPATH,"Element 'CLOSE_ARTICLE_BUTTON_BY_XPATH' (Navigate up 'X') can not find.",5);
+                CLOSE_ARTICLE_BUTTON,
+                "Element 'CLOSE_ARTICLE_BUTTON' (Navigate up 'X') can not find.",
+                5);
     }
 
+    // Проверка наличия Названия статьи, не дожидаясь полной загрузки
     public void withoutWaitTitlePresent(){
-        this.assertElementNotPresent(TITLE_BY_ID, "Title is not find withot waitong");
+        this.assertElementNotPresent(
+                TITLE_TPL,
+                "Title is not find without waiting");
     }
 }

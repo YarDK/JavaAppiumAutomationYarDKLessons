@@ -2,6 +2,7 @@ package testsHomework;
 
 import lib.CoreTestCase;
 import lib.ui.SearchPageObject;
+import lib.ui.factories.SearchPageObjectFactory;
 import org.junit.Test;
 
 public class Ex3CancelSearch extends CoreTestCase {
@@ -17,7 +18,7 @@ public class Ex3CancelSearch extends CoreTestCase {
     @Test
     public void testCancelSearch()
     {
-        SearchPageObject searchPageObject = new SearchPageObject(driver);
+        SearchPageObject searchPageObject = SearchPageObjectFactory.get(driver);
         searchPageObject.initSearchInput();
         String search_line = "Java";
         searchPageObject.typeSearchLine(search_line);

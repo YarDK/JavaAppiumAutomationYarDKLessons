@@ -5,15 +5,18 @@ import io.appium.java_client.MobileElement;
 import io.appium.java_client.TouchAction;
 import io.appium.java_client.touch.WaitOptions;
 import io.appium.java_client.touch.offset.PointOption;
+import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
-import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
+
 import java.util.regex.Pattern;
 
 public class MainPageObject {
@@ -44,14 +47,14 @@ public class MainPageObject {
         return element;
     }
 
-    // Метод для совершения клика по элементу
+    // Метод для ввода значения в поле ввода
     public WebElement waitForElementAndSendKeys(String locator, String value, String error_massage, long timeoutInSeconds) {
         WebElement element = waitForElementPresent(locator, error_massage, timeoutInSeconds);
         element.sendKeys(value);
         return element;
     }
 
-    // Метод для ввода значения в выбранный элемент
+    // Метод для отрпавки в поле ввода значения (не вводит, а передает значение целиком)
     public WebElement  waitForElementAndSetValue(String locator, String value, String error_massage, long timeoutInSeconds) {
         By by = this.getLocatorByString(locator);
         waitForElementPresent(locator,error_massage,timeoutInSeconds);
@@ -106,12 +109,41 @@ public class MainPageObject {
                 return;
             }
             swipeUpQuick();
-            already_swipe++;
+            ++already_swipe;
         }
     }
 
+    // Метод для скорла, пока элемет на странице не будет виден (метод для iOS платформы)
+    public void swipeUpToFindElementAppear(String locator, String error_message, int max_swipes){
+        int already_swipe = 0;
+        while(!this.isElementLocatedOnScrean(locator)){
+            if (already_swipe > max_swipes){
+                Assert.assertTrue(error_message, this.isElementLocatedOnScrean(locator));
+            }
+            swipeUpQuick();
+            ++already_swipe;
+        }
+    }
+
+    // Метода сравнивает фактическое расположение объекта по оси Y относительно видимой части экрана.
+    // Верент true когда обхект будет виден на экране пользователю
+    public boolean isElementLocatedOnScrean(String locator){
+        int element_locator_by_y =
+                this.waitForElementPresent(
+                    locator,
+                    "Cannot find element by locator",
+                    10)
+                    .getLocation().getY();
+
+        int screen_size_by_y = driver.manage().window().getSize().getHeight();
+        return element_locator_by_y < screen_size_by_y;
+    }
+
+
+    // Метода для совершения свайпа по элементу справа на лево
     public void swipeElementToLeft(String locator, String error_message){
         WebElement element = waitForElementPresent(locator, error_message, 10);
+
         int left_x = element.getLocation().getX(); // Левая сторона найденного элемента. Берем нулевое значение по оси Х
         int right_x = left_x + element.getSize().getWidth(); // Правая сторона элемента
         int upper_y = element.getLocation().getY();
@@ -127,6 +159,26 @@ public class MainPageObject {
                 .perform();
     }
 
+    // Метод для клика по правой стороне элемента (кнопка удалить в приложении)
+    // Метод подходит только для iOS, т.к. координаты строятся по относительной величене
+    public void clickElementToTheRightSideIOS(String locator, String error_message){
+        WebElement element = waitForElementPresent(locator, error_message, 10);
+        int left_side_x = element.getLocation().getX();
+        int upper_side_y = element.getLocation().getY();
+        int lower_side_y = upper_side_y + element.getSize().getHeight();
+        int middle_y = (upper_side_y + lower_side_y) / 2;
+        int width = element.getSize().getWidth();
+
+        //System.out.println("Coordinate by x:" + (left_side_x + width - 3) + " and y:" + middle_y);
+        TouchAction action = new TouchAction(driver);
+        action
+                .tap(PointOption.point((left_side_x + width - 3), middle_y))
+                .release()
+                .perform();
+
+    }
+
+    // Временная заглушка для принудительной приостановки выполнения кода
     public void waitingForElement(long timeForWaiting){
         try{
             Thread.sleep(timeForWaiting);
@@ -135,6 +187,8 @@ public class MainPageObject {
         }
     }
 
+    // Метод для проверки наличия элемента на странице.
+    // Если его нет, то выкидывается Exception с текстом ошибки
     public void assertElementNotPresent(String locator, String error_message){
         By by = this.getLocatorByString(locator);
         try {
@@ -144,12 +198,37 @@ public class MainPageObject {
         }
     }
 
+    // Метод возвращает число элементов, найденных на странмце
     public int getAmountOfElements(String locator){
         By by = this.getLocatorByString(locator);
         List list = driver.findElements(by);
         return list.size();
     }
 
+    // Метод возвражает список со всеми именами статей, найденными на странице.
+    // Работает для iOS, т.к. строится на основе темплейта лакатора для iOS версии
+    public ArrayList getAllArticlesOnListIOS(String locator){
+        Integer element_index = 1;
+        By by = this.getLocatorByString(locator.replace("{ELEMENT_INDEX}",element_index.toString()));
+        WebElement article = driver.findElement(by);
+        ArrayList<String> articles_name = new ArrayList<>();
+
+        while (article.isDisplayed()){
+            articles_name.add(article.getAttribute("name"));
+            element_index++;
+            by = this.getLocatorByString(locator.replace("{ELEMENT_INDEX}",element_index.toString()));
+            article = driver.findElement(by);
+        }
+        return articles_name;
+    }
+
+    // Метода, при вызове которого протсто выкидывется Assert с ошибкой
+    public void assertResultNotFound(String error_message){
+        throw new AssertionError(error_message);
+    }
+
+    // Метод проверят, что на странице представлено сразу два заданных элемента.
+    // Писла для проверки пары Название и Описание статьи
     public void assertTwoElementNotPresent(String locator_first_element, String locator_second_element, String error_message){
 
         By by_one = this.getLocatorByString(locator_first_element);
@@ -162,6 +241,7 @@ public class MainPageObject {
         }
     }
 
+    // Метод для построения локатора. В него передается строка, которая парсится и возвращается как By
     private By getLocatorByString(String locator_with_type){
         // Данная строка записывает делит по символу двоеточие
         String[] exploded_locator = locator_with_type.split(Pattern.quote(":"),2);
@@ -176,6 +256,5 @@ public class MainPageObject {
             throw new IllegalArgumentException("Cannot get typ of locator. Locator: " + locator_with_type);
         }
     }
-
 
 }
