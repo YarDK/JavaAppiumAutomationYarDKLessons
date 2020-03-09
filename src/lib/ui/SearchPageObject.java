@@ -6,6 +6,8 @@ import org.openqa.selenium.WebElement;
 
 import java.util.ArrayList;
 
+import static org.apache.commons.lang3.ArrayUtils.toArray;
+
 abstract public class SearchPageObject extends MainPageObject {
 
      protected static String
@@ -17,6 +19,7 @@ abstract public class SearchPageObject extends MainPageObject {
              SEARCH_RESULT_BY_SUBSTRING_TPL,
              SEARCH_RESULT_BY_TITLE_TPL,
              SEARCH_RESULT_ELEMENT,
+             SEARCH_RESULT_ELEMENT_TITLE,
             SEARCH_EMPTY_RESULT_ELEMENT;
 
     public SearchPageObject(AppiumDriver driver){
@@ -181,18 +184,25 @@ abstract public class SearchPageObject extends MainPageObject {
     }
 
 
-    // Вернуть полное название статьи, найденое по содержащемуся тексту в полном названии всех представленнх статей
-    // Иными словами, поиск определенной статьи по полученному результату поиска
-    // ЗЫ: метод не оправдан, т.к. все равно требуется знать точное название статьи и ее описание!
-    public String findArticleWithText(String contain_text){
-        this.waitForElementPresent(SEARCH_RESULT_LIST, "Result list not found", 10);
-        ArrayList<String> articles_name = this.getAllArticlesOnListIOS(SEARCH_RESULT_ELEMENT);
-        for(String article : articles_name){
-            if(article.contains(contain_text)){
-                return article;
-            }
+    // Взять имена заданного количества статей
+    public Object[] getNameArticles(int amount_article){
+        this.waitForElementPresent(
+                SEARCH_RESULT_LIST,
+                "Element 'SEARCH_RESULT_LIST' not found",
+                10
+        );
+
+        if(Platform.getInstance().isIOS()) {
+            return this.getArticlesOnListSetNumberIOS(SEARCH_RESULT_ELEMENT, amount_article).toArray();
+        } else {
+            return this.getArticlesOnListSetNumberAndroid(SEARCH_RESULT_ELEMENT_TITLE, amount_article).toArray();
         }
-        return("Cannot find article with " + contain_text);
+    }
+
+
+    // Верификация статьи на наличие ключевого слова
+    public boolean verificationFirstThreeArticles(Object article, String contain_text){
+        return article.toString().contains(contain_text);
     }
 
 }

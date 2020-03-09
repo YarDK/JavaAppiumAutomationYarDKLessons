@@ -54,13 +54,4 @@ public class SearchTests extends CoreTestCase {
         searchPageObject.waitForEmptyResultsLabel();
         searchPageObject.assertThereIsNoResultOfSearch();
     }
-
-    @Test
-    public void testGetAllNameArticles()
-    {
-        SearchPageObject searchPageObject = SearchPageObjectFactory.get(driver);
-        searchPageObject.initSearchInput();
-        searchPageObject.typeSearchLine("Java");
-        searchPageObject.findArticleWithText("Programming");
-    }
 }

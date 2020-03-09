@@ -219,6 +219,41 @@ public class MainPageObject {
             by = this.getLocatorByString(locator.replace("{ELEMENT_INDEX}",element_index.toString()));
             article = driver.findElement(by);
         }
+
+        return articles_name;
+    }
+
+
+    // Метод возвражает список со всеми именами статей (количество статей регулируется)
+    // Работает для iOS, т.к. строится на основе темплейта лакатора для iOS версии
+    public ArrayList<String> getArticlesOnListSetNumberIOS(String locator, int amount_articles){
+        Integer element_index = 1;
+        By by = this.getLocatorByString(locator.replace("{ELEMENT_INDEX}",element_index.toString()));
+        WebElement article = driver.findElement(by);
+        ArrayList<String> articles_name = new ArrayList<>();
+
+        while (article.isDisplayed() && amount_articles != 0){
+            articles_name.add(article.getAttribute("name"));
+            element_index++;
+            by = this.getLocatorByString(locator.replace("{ELEMENT_INDEX}",element_index.toString()));
+            article = driver.findElement(by);
+            amount_articles--;
+        }
+
+        return articles_name;
+    }
+
+    // Метод возвражает список со всеми именами статей (количество статей регулируется)
+    // Работает для Android
+    public ArrayList<String> getArticlesOnListSetNumberAndroid(String locator, int amount_articles){
+        By by = this.getLocatorByString(locator);
+        List list_articles_name = driver.findElements(by);
+        ArrayList<String> articles_name = new ArrayList<>();
+        for(int i=0; i<amount_articles; i++){
+            WebElement element = (WebElement) list_articles_name.get(i);
+            articles_name.add(element.getAttribute("text"));
+        }
+
         return articles_name;
     }
 
